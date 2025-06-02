@@ -50,39 +50,15 @@ useEffect(() => {
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Your Contacts</h2>
-      <ul className="mb-6">
+  <div className="dashboard">
+    <div className="left-pane">
+      <h2>Your Contacts</h2>
+      <ul>
         {contacts.map((user, i) => (
           <li key={i}>
             <button
-              onClick={() => navigate(`/chat/${user.id}`)}
-              className="text-blue-600 underline"
-            >
-              Chat with {user.username || user.id}
-            </button>
-          </li>
-        ))}
-
-      </ul>
-
-      <h3 className="text-xl font-semibold mb-2">Search Users</h3>
-      <div className="flex gap-2 mb-4">
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Enter username"
-          className="border p-2 flex-1"
-        />
-        <button onClick={handleSearch} className="bg-blue-500 text-white p-2 rounded">Search</button>
-      </div>
-      <ul>
-        {searchResults.map((user, i) => (
-          <li key={i}>
-            <button
-              onClick={() => navigate(`/chat/${user.id}`)}
-              className="text-green-600 underline"
+             onClick={() => navigate(`/chat/${user.id}`, { state: { fromSearch: true } })}
+              className="contact-btn"
             >
               Chat with {user.username || user.id}
             </button>
@@ -90,7 +66,33 @@ useEffect(() => {
         ))}
       </ul>
     </div>
-  );
-};
 
-export default DashboardPage;
+    <div className="right-pane">
+      <h2>Search Users</h2>
+      <div className="search-bar">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Enter username"
+        />
+        <button onClick={handleSearch}>Search</button>
+      </div>
+      <ul>
+        {searchResults.map((user, i) => (
+          <li key={i}>
+            <button
+              onClick={() => navigate(`/chat/${user.id}`, { state: { fromSearch: true } })}
+              className="search-btn"
+            >
+              Chat with {user.username || user.id}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+);
+
+};
+export default DashboardPage; 

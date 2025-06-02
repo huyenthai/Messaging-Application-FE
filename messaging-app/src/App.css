@@ -36,3 +36,150 @@
     transform: rotate(360deg);
   }
 }
+/* Center the auth form vertically and horizontally */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #f3f4f6; /* light gray background */
+}
+
+.auth-box {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
+
+.auth-box h2 {
+  text-align: center;
+}
+
+.auth-box input {
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+}
+
+.auth-box button {
+  background-color: #3b82f6;
+  color: white;
+  font-weight: bold;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.auth-box button:hover {
+  background-color: #2563eb; 
+}
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.auth-form input {
+  width: 100%;
+}
+
+.auth-form button {
+  align-self: center;
+  width: 50%; /* Optional: adjust as needed */
+}
+.dashboard {
+  display: flex;
+  height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.left-pane, .right-pane {
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.left-pane {
+  width: 40%;
+  border-right: 1px solid #ddd;
+  background-color: #f9f9f9;
+}
+
+.right-pane {
+  width: 60%;
+  background-color: #fff;
+}
+
+.search-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.search-bar button {
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.search-bar button:hover {
+  background-color: #2563eb;
+}
+
+.contact-btn,
+.search-btn {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0.25rem 0;
+}
+
+ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.chat-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.chat-header {
+  padding: 1rem;
+  background: #075e54;
+  color: white;
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  background: #e5ddd5;
+}
+
+.chat-input {
+  display: flex;
+  padding: 1rem;
+  background: white;
+  border-top: 1px solid #ccc;
+}
+
+
+

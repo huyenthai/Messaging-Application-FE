@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {authApi} from '../utils/axiosInstance';
+import '../App.css'; 
 
 const SignupPage = () => {
   const [email, setEmail] = useState('');
@@ -20,9 +21,10 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="p-6 max-w-md mx-auto">
+    <div className="auth-container">
+      <div className="auth-box">
       <h2 className="text-2xl font-bold mb-4">Sign Up</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="auth-form">
         <input
           type="text"
           placeholder="Username"
@@ -52,7 +54,8 @@ const SignupPage = () => {
       <p className="mt-4 text-center">
         Already have an account? <Link to="/" className="text-blue-600">Login</Link>
       </p>
-    </div>
+      </div>
+  </div>
   );
 };
 

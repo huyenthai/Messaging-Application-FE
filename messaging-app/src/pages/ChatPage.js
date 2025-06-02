@@ -1,149 +1,146 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { chatApi, mediaApi, userApi } from '../utils/axiosInstance';
-import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
+import { useLocation } from 'react-router-dom';
+
 
 const ChatPage = () => {
   const { userId } = useParams();
+  const { user } = useContext(AuthContext);
   const [messages, setMessages] = useState([]);
   const [userMap, setUserMap] = useState({});
   const [chatUserName, setChatUserName] = useState(null);
   const [message, setMessage] = useState('');
   const [image, setImage] = useState(null);
   const fileRef = useRef();
-  const [allowed, setAllowed] = useState(null); 
+  const [allowed, setAllowed] = useState(null);
   const [isValidating, setIsValidating] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
+  const fromSearch = location.state?.fromSearch || false;
 
-// Validate access FIRST
-useEffect(() => {
-  const validateAccess = async () => {
+  useEffect(() => {
+    const validateAccess = async () => {
     try {
       const res = await chatApi.get('/api/chat/contacts');
-      const allowedUserIds = res.data.map(String);
-      setAllowed(allowedUserIds.includes(userId));
+      const allowedUserIds = res.data.map(id => String(id));
+      
+      if (allowedUserIds.includes(userId) || fromSearch) {
+        setAllowed(true);
+      } else {
+        setAllowed(false);
+      }
     } catch (err) {
-      console.error("Access validation failed:", err);
+      console.error('Access validation failed:', err);
       setAllowed(false);
     } finally {
       setIsValidating(false);
     }
   };
 
-  validateAccess();
-}, [userId]);
+    validateAccess();
+  }, [userId]);
 
+  useEffect(() => {
+    const loadMessages = async () => {
+      try {
+        const historyRes = await chatApi.get(`/api/chat/history?receiverId=${userId}`);
+        const msgs = historyRes.data;
 
+        const senderIds = msgs.map(m => parseInt(m.senderId)).filter(id => !isNaN(id));
+        const uniqueIds = [...new Set([...senderIds, parseInt(userId)])];
 
- // Only load messages AFTER access is granted
-useEffect(() => {
-  const loadMessages = async () => {
-    try {
-      const historyRes = await chatApi.get(`/api/chat/history?receiverId=${userId}`);
-      const msgs = historyRes.data;
+        const userRes = await userApi.post('/api/user/bulk', uniqueIds);
+        const map = {};
+        userRes.data.forEach(u => {
+          map[u.id] = u.username;
+        });
 
-      const senderIds = msgs.map(m => parseInt(m.senderId)).filter(id => !isNaN(id));
-      const uniqueIds = [...new Set([...senderIds, parseInt(userId)])];
+        const updatedMessages = await Promise.all(msgs.map(async (msg) => {
+          if (msg.messageType === 'image' && msg.blobName) {
+            const res = await mediaApi.get(`/api/media/url/${msg.blobName}`);
+            return { ...msg, imageUrl: res.data.sasUrl };
+          }
+          return msg;
+        }));
 
-      const userRes = await userApi.post('/api/user/bulk', uniqueIds);
-      const map = {};
-      userRes.data.forEach(u => {
-        map[u.id] = u.username;
+        setMessages(updatedMessages);
+        setUserMap(map);
+        setChatUserName(map[userId]);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    if (allowed) {
+      loadMessages();
+    }
+  }, [userId, allowed]);
+
+  useEffect(() => {
+    if (!isValidating && allowed === false) {
+      navigate('/dashboard');
+    }
+  }, [allowed, isValidating, navigate]);
+
+  const handleSend = async () => {
+    if (!message && !image) return;
+
+    let payload = {
+      receiverId: userId,
+      message: message || null,
+      blobName: null,
+      messageType: image ? 'image' : 'text'
+    };
+
+    if (image) {
+      const formData = new FormData();
+      formData.append('file', image);
+      const uploadRes = await mediaApi.post('/api/media/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
 
-      const updatedMessages = await Promise.all(msgs.map(async (msg) => {
-        if (msg.messageType === 'image' && msg.blobName) {
+      payload.blobName = uploadRes.data.blobName;
+    }
+
+    await chatApi.post('/api/chat/send', payload);
+    setMessage('');
+    setImage(null);
+    fileRef.current.value = null;
+
+    const updatedRes = await chatApi.get(`/api/chat/history?receiverId=${userId}`);
+    const msgs = updatedRes.data;
+
+    const messagesWithUrls = await Promise.all(msgs.map(async (msg) => {
+      if (msg.messageType === 'image' && msg.blobName) {
+        try {
           const res = await mediaApi.get(`/api/media/url/${msg.blobName}`);
           return { ...msg, imageUrl: res.data.sasUrl };
+        } catch {
+          return { ...msg, imageUrl: null };
         }
-        return msg;
-      }));
-
-      setMessages(updatedMessages);
-      setUserMap(map);
-      setChatUserName(map[userId]);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  if (allowed) {
-    loadMessages();
-  }
-}, [userId, allowed]);
-
-useEffect(() => {
-  if (isValidating) return;
-  if (allowed === false) {
-    navigate('/dashboard');
-  }
-}, [allowed, isValidating, navigate]);
-
-
-const handleSend = async () => {
-  if (!message && !image) return;
-
-  let payload = {
-    receiverId: userId,
-    message: message || null,
-    blobName: null,
-    messageType: image ? 'image' : 'text'
-  };
-
-  if (image) {
-    const formData = new FormData();
-    formData.append('file', image);
-    const uploadRes = await mediaApi.post('/api/media/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
-
-    payload.blobName = uploadRes.data.blobName;
-    // still keep message if one was typed
-  }
-
-  await chatApi.post('/api/chat/send', payload);
-  setMessage('');
-  setImage(null);
-  fileRef.current.value = null;
-
-  // Re-fetch with SAS URLs
-  const updatedRes = await chatApi.get(`/api/chat/history?receiverId=${userId}`);
-  const msgs = updatedRes.data;
-
-  const messagesWithUrls = await Promise.all(msgs.map(async (msg) => {
-    if (msg.messageType === 'image' && msg.blobName) {
-      try {
-        const res = await mediaApi.get(`/api/media/url/${msg.blobName}`);
-        return { ...msg, imageUrl: res.data.sasUrl };
-      } catch {
-        return { ...msg, imageUrl: null };
       }
-    }
-    return msg;
-  }));
+      return msg;
+    }));
 
-  setMessages(messagesWithUrls);
-};
-
+    setMessages(messagesWithUrls);
+  };
 
   return (
     <div className="p-4 max-w-2xl mx-auto">
       <h2 className="text-xl font-bold mb-4">Chat with {chatUserName || userId}</h2>
       <div className="space-y-2 border p-4 h-96 overflow-y-scroll mb-4">
-       {messages.map((msg, i) => (
-      <div key={i} className="border-b pb-2">
-        <p><strong>{userMap[msg.senderId] || msg.senderId}</strong>:</p>
-
-        {msg.message && <p>{msg.message}</p>}
-
-        {msg.blobName && msg.imageUrl && (
-          <img src={msg.imageUrl} alt="sent" className="w-48" />
-        )}
-
-        <p className="text-xs text-gray-500">{new Date(msg.timeSent).toLocaleString()}</p>
-      </div>
-    ))}
-
+        {messages.map((msg, i) => (
+          <div key={i} className="border-b pb-2">
+            <p><strong>{userMap[msg.senderId] || msg.senderId}</strong>:</p>
+            {msg.message && <p>{msg.message}</p>}
+            {msg.blobName && msg.imageUrl && (
+              <img src={msg.imageUrl} alt="sent" className="w-48" />
+            )}
+            <p className="text-xs text-gray-500">{new Date(msg.timeSent).toLocaleString()}</p>
+          </div>
+        ))}
       </div>
       <div className="flex flex-col gap-2">
         <textarea

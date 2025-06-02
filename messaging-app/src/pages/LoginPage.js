@@ -2,6 +2,8 @@ import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {authApi} from '../utils/axiosInstance';
 import { AuthContext } from '../context/AuthContext';
+import '../App.css'; 
+
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -30,15 +32,15 @@ const handleSubmit = async (e) => {
 
 
   return (
-    <div className="p-6 max-w-md mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Login</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+   <div className="auth-container">
+      <div className="auth-box">
+      <h2>Login</h2>
+      <form onSubmit={handleSubmit} className="auth-form">
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 border rounded"
           required
         />
         <input
@@ -46,14 +48,14 @@ const handleSubmit = async (e) => {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 border rounded"
           required
         />
-        <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded">Login</button>
+        <button type="submit">Login</button>
       </form>
-      <p className="mt-4 text-center">
-        Don't have an account? <Link to="/signup" className="text-blue-600">Sign up</Link>
+      <p>
+        Don't have an account? <Link to="/signup">Sign up</Link>
       </p>
+      </div>
     </div>
   );
 };
