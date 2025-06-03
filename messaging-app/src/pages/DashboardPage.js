@@ -2,12 +2,17 @@ import React, { useState, useEffect,useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { chatApi, userApi } from '../utils/axiosInstance';
 import { AuthContext } from '../context/AuthContext';
+import '../App.css'; 
+import * as signalR from "@microsoft/signalr";
+
 
 const DashboardPage = () => {
   const { user, token } = useContext(AuthContext);
   const [contacts, setContacts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [userMap, setUserMap] = useState({});
+
   const navigate = useNavigate();
     useEffect(() => {
     if (!user || !token) {
@@ -37,6 +42,38 @@ useEffect(() => {
   };
 
   fetchContacts();
+  const connection = new signalR.HubConnectionBuilder()
+    .withUrl("http://localhost:5002/chatHub", {
+      accessTokenFactory: () => token
+    })
+    .withAutomaticReconnect()
+    .build();
+
+  connection.start().then(() => {
+    connection.on("ReceiveMessage", async (msg) => {
+      if (msg.receiverId === user.id) {
+        const senderId = parseInt(msg.senderId);
+        const alreadyInContacts = contacts.some(u => u.id === senderId);
+
+        if (!alreadyInContacts) {
+          try {
+            const userRes = await userApi.post('/api/user/bulk', [senderId]);
+            const newUser = userRes.data[0];
+
+            setContacts(prev => [...prev, newUser]);
+          } catch (err) {
+            console.error('Failed to load new sender info:', err);
+          }
+        }
+      }
+    });
+  }).catch(err => console.error("SignalR connection failed:", err));
+
+  // Cleanup
+  return () => {
+    connection.stop();
+  };
+
 }, []);
 
 
@@ -50,6 +87,13 @@ useEffect(() => {
   };
 
   return (
+    <div className="dashboard-wrapper">
+     <div className="dashboard-header">
+    <button className="profile-btn" onClick={() => navigate('/profile')}>
+      Profile
+    </button>
+  </div>
+
   <div className="dashboard">
     <div className="left-pane">
       <h2>Your Contacts</h2>
@@ -91,6 +135,7 @@ useEffect(() => {
         ))}
       </ul>
     </div>
+  </div>
   </div>
 );
 
