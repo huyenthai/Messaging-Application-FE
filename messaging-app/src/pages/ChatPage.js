@@ -23,6 +23,8 @@ const ChatPage = () => {
   const location = useLocation();
   const fromSearch = location.state?.fromSearch || false;
   const [popupImageUrl, setPopupImageUrl] = useState(null);
+  const [isDeletedUser, setIsDeletedUser] = useState(false);
+
 
   useEffect(() => {
     if (user?.id && user?.username) {
@@ -139,7 +141,10 @@ const ChatPage = () => {
 
         setMessages(updatedMessages);
         setUserMap(map);
-        setChatUserName(map[userId]);
+        setChatUserName(map[userId]); 
+     
+        const chatUser = userRes.data.find(u => u.id == userId);
+        setIsDeletedUser(chatUser?.isDeleted === true);
       } catch (err) {
         console.error(err);
       }
@@ -251,21 +256,34 @@ return (
         </div>
 
         <div className="chat-input">
+          {isDeletedUser && (
+            <p className="chat-disabled-note">
+              This user has deleted their account. You can no longer send messages.
+            </p>
+          )}
+
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             rows="2"
             placeholder="Type a message"
+            disabled={isDeletedUser}
           />
-          <input type="file" ref={fileRef} onChange={(e) => setImage(e.target.files[0])} />
+          <input
+            type="file"
+            ref={fileRef}
+            onChange={(e) => setImage(e.target.files[0])}
+            disabled={isDeletedUser}
+          />
           <button
             onClick={handleSend}
-            disabled={!message.trim() && !image}
-            className={`send-btn ${message.trim() || image ? 'active' : 'disabled'}`}
+            disabled={!message.trim() && !image || isDeletedUser}
+            className={`send-btn ${(message.trim() || image) && !isDeletedUser ? 'active' : 'disabled'}`}
           >
             Send
           </button>
         </div>
+
 
         {popupImageUrl && (
           <div className="image-popup-overlay" onClick={() => setPopupImageUrl(null)}>

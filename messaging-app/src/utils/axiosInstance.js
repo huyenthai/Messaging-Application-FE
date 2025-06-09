@@ -8,7 +8,7 @@ const createSecuredClient = (baseURL) => {
   });
 
   instance.interceptors.request.use(config => {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -18,7 +18,8 @@ const createSecuredClient = (baseURL) => {
   return instance;
 };
 
-export const authApi = createSecuredClient('http://localhost:5000');
-export const userApi = createSecuredClient('http://localhost:5001');
-export const chatApi = createSecuredClient('http://localhost:5002');
-export const mediaApi = createSecuredClient('http://localhost:5003');
+// Use .env variables (set in frontend Docker context or dev env)
+export const authApi = createSecuredClient(process.env.REACT_APP_AUTH_URL);
+export const userApi = createSecuredClient(process.env.REACT_APP_USER_URL);
+export const chatApi = createSecuredClient(process.env.REACT_APP_CHAT_URL);
+export const mediaApi = createSecuredClient(process.env.REACT_APP_MEDIA_URL);

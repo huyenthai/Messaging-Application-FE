@@ -1,6 +1,8 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { userApi } from '../utils/axiosInstance';
+
 import '../App.css';
 
 const ProfilePage = () => {
@@ -11,6 +13,27 @@ const ProfilePage = () => {
     logout();
     navigate('/');
   };
+
+const handleDeleteAccount = async () => {
+  const confirmed = window.confirm("Are you sure you want to delete your account? This action cannot be undone.");
+  if (!confirmed) return;
+
+  try {
+    const response = await userApi.delete('/api/user/delete-account');
+
+    if (response.status === 204) {
+      alert("Your account has been deleted.");
+      logout();
+      navigate('/');
+    } else {
+      alert("Failed to delete account.");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("An unexpected error occurred.");
+  }
+};
+
 
   return (
     <div className="profile-page">
@@ -27,6 +50,9 @@ const ProfilePage = () => {
         </div>
         <button className="logout-btn" onClick={handleLogout}>
           Logout
+        </button>
+        <button className="delete-btn" onClick={handleDeleteAccount}>
+          Delete My Account
         </button>
       </div>
     </div>

@@ -123,16 +123,19 @@ useEffect(() => {
         <button onClick={handleSearch}>Search</button>
       </div>
       <ul>
-        {searchResults.map((user, i) => (
-          <li key={i}>
-            <button
-              onClick={() => navigate(`/chat/${user.id}`, { state: { fromSearch: true } })}
-              className="search-btn"
-            >
-              Chat with {user.username || user.id}
-            </button>
-          </li>
+        {searchResults
+          .filter(user => !user.isDeleted)
+          .map((user, i) => (
+            <li key={i}>
+              <button
+                onClick={() => navigate(`/chat/${user.id}`, { state: { fromSearch: true } })}
+                className="search-btn"
+              >
+                Chat with {user.username || user.id}
+              </button>
+            </li>
         ))}
+
       </ul>
     </div>
   </div>
