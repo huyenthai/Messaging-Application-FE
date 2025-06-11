@@ -22,7 +22,8 @@ jobs:
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           IMAGE="${{ env.DOCKER_IMAGE_NAME }}:$SHORT_SHA"
           LATEST="${{ env.DOCKER_IMAGE_NAME }}:${{ env.TAG_NAME }}"
-          docker build -t "$IMAGE" -t "$LATEST" .
+          docker build -t "$IMAGE" -t "$LATEST" ./messaging-app
+
 
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
