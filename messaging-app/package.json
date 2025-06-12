@@ -2,6 +2,7 @@
   "name": "messaging-app",
   "version": "0.1.0",
   "private": true,
+  "homepage": "/",
   "dependencies": {
     "@microsoft/signalr": "^8.0.7",
     "@testing-library/dom": "^10.4.0",
