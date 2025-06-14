@@ -47,8 +47,9 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        working-directory: ./messaging-app
-        run: npm install
+        run: |
+          cd messaging-app
+          npm install
 
       - name: Start frontend container from Docker Hub
         run: docker run -d -p 8081:80 --name messaging-frontend huyenthai01/messaging-frontend:latest
@@ -60,12 +61,13 @@ jobs:
           timeout: 30
 
       - name: Run Cypress tests
-        working-directory: ./messaging-app
         uses: cypress-io/github-action@v5
         with:
+          working-directory: messaging-app
           config: baseUrl=http://localhost:8081
           wait-on: http://localhost:8081
 
       - name: Stop container
         if: always()
         run: docker rm -f messaging-frontend
+
