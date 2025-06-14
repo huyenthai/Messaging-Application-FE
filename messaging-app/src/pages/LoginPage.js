@@ -11,7 +11,7 @@ const LoginPage = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
-const handleSubmit = async (e) => {a
+const handleSubmit = async (e) => {
   e.preventDefault();
   try {
     const response = await authApi.post('api/auth/login', { email, password });
