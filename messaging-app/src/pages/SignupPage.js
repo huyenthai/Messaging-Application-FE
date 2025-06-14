@@ -12,7 +12,7 @@ const SignupPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await authApi.post('auth/api/auth/signup', { username, email, password });
+      await authApi.post('api/auth/signup', { username, email, password });
       alert('Signup successful! Please login.');
       navigate('/');
     } catch (err) {

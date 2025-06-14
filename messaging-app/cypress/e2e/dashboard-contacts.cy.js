@@ -1,6 +1,6 @@
 describe('Dashboard - Contact List', () => {
   beforeEach(() => {
-    cy.login('huyen@gmail.com', 'Test123');
+    cy.login('chau@gmail.com', 'Test123');
     cy.location('pathname').should('eq', '/dashboard');
   });
 
