@@ -47,11 +47,10 @@ jobs:
         DB_PASSWORD: ${{ secrets.E2E_DB_PASSWORD }}
 
       steps:
-        - name: Checkout code
-          uses: actions/checkout@v3
+        - uses: actions/checkout@v3
 
-        - name: Start full application stack
-          run: docker-compose -f docker-compose.e2e.yml up -d
+        - name: Start containers for Cypress tests
+          run: docker compose -f docker-compose.e2e.yml up -d
 
         - name: Wait for frontend to be ready
           uses: jakejarvis/wait-action@v0.1.1
@@ -59,12 +58,12 @@ jobs:
             url: http://localhost:8081
             timeout: 60
 
-        - name: Set up Node.js
+        - name: Setup Node.js
           uses: actions/setup-node@v3
           with:
             node-version: 20
 
-        - name: Install frontend dependencies
+        - name: Install dependencies
           run: |
             cd messaging-app
             npm ci
@@ -76,7 +75,6 @@ jobs:
             config: baseUrl=http://localhost:8081
             wait-on: http://localhost:8081
 
-        - name: Shut down all services
+        - name: Shut down test stack
           if: always()
-          run: docker-compose -f docker-compose.e2e.yml down
-
+          run: docker compose -f docker-compose.e2e.yml down
