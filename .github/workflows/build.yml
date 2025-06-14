@@ -33,41 +33,7 @@ jobs:
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           docker push "${{ env.DOCKER_IMAGE_NAME }}:$SHORT_SHA"
           docker push "${{ env.DOCKER_IMAGE_NAME }}:${{ env.TAG_NAME }}"
-  name: Build and Push Frontend Docker Image
-
-on:
-  push:
-    branches: [main]
-
-env:
-  DOCKER_IMAGE_NAME: huyenthai01/messaging-frontend
-  TAG_NAME: latest
-
-jobs:
-  docker-image-and-push:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker image
-        run: |
-          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-          IMAGE="${{ env.DOCKER_IMAGE_NAME }}:$SHORT_SHA"
-          LATEST="${{ env.DOCKER_IMAGE_NAME }}:${{ env.TAG_NAME }}"
-          docker build -t "$IMAGE" -t "$LATEST" ./messaging-app
-
-      - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
-
-      - name: Push Docker image
-        run: |
-          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-          docker push "${{ env.DOCKER_IMAGE_NAME }}:$SHORT_SHA"
-          docker push "${{ env.DOCKER_IMAGE_NAME }}:${{ env.TAG_NAME }}"
-
+  
   e2e-tests:
     needs: docker-image-and-push
     runs-on: ubuntu-latest
