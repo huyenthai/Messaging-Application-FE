@@ -35,39 +35,48 @@ jobs:
           docker push "${{ env.DOCKER_IMAGE_NAME }}:${{ env.TAG_NAME }}"
   
   e2e-tests:
-    needs: docker-image-and-push
-    runs-on: ubuntu-latest
+      runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v3
+      env:
+        Jwt__Key: ${{ secrets.E2E_JWT_KEY }}
+        ConnectionStrings__AuthDb: ${{ secrets.E2E_AUTH_DB_CONNECTION }}
+        ConnectionStrings__UserDb: ${{ secrets.E2E_USER_DB_CONNECTION }}
+        AzureBlob__ConnectionString: ${{ secrets.E2E_AZURE_BLOB_CONNECTION }}
+        RabbitMq__User: ${{ secrets.E2E_RABBITMQ_USER }}
+        RabbitMq__Password: ${{ secrets.E2E_RABBITMQ_PASSWORD }}
+        DB_PASSWORD: ${{ secrets.E2E_DB_PASSWORD }}
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: |
-          cd messaging-app
-          npm install
+        - name: Start full application stack
+          run: docker-compose -f docker-compose.e2e.yml up -d
 
-      - name: Start frontend container from Docker Hub
-        run: docker run -d -p 8081:80 --name messaging-frontend huyenthai01/messaging-frontend:latest
+        - name: Wait for frontend to be ready
+          uses: jakejarvis/wait-action@v0.1.1
+          with:
+            url: http://localhost:8081
+            timeout: 60
 
-      - name: Wait for app to be ready
-        uses: jakejarvis/wait-action@v0.1.1
-        with:
-          url: http://localhost:8081
-          timeout: 30
+        - name: Set up Node.js
+          uses: actions/setup-node@v3
+          with:
+            node-version: 20
 
-      - name: Run Cypress tests
-        uses: cypress-io/github-action@v5
-        with:
-          working-directory: messaging-app
-          config: baseUrl=http://localhost:8081
-          wait-on: http://localhost:8081
+        - name: Install frontend dependencies
+          run: |
+            cd messaging-app
+            npm ci
 
-      - name: Stop container
-        if: always()
-        run: docker rm -f messaging-frontend
+        - name: Run Cypress tests
+          uses: cypress-io/github-action@v5
+          with:
+            working-directory: messaging-app
+            config: baseUrl=http://localhost:8081
+            wait-on: http://localhost:8081
+
+        - name: Shut down all services
+          if: always()
+          run: docker-compose -f docker-compose.e2e.yml down
 

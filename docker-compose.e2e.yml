@@ -1,0 +1,98 @@
+version: "3.8"
+
+services:
+  auth-service:
+    image: huyenthai01/authentication-service:latest
+    ports:
+      - "5000:8080"
+    environment:
+      - Jwt__Key=${Jwt__Key}
+      - ConnectionStrings__DefaultConnection=${ConnectionStrings__AuthDb}
+      - ASPNETCORE_ENVIRONMENT=Production
+      - RabbitMq__Host=rabbitmq
+    depends_on:
+      - auth-db
+      - rabbitmq
+
+  user-service:
+    image: huyenthai01/user-service:latest
+    ports:
+      - "5001:8080"
+    environment:
+      - Jwt__Key=${Jwt__Key}
+      - ConnectionStrings__DefaultConnection=${ConnectionStrings__UserDb}
+      - ASPNETCORE_ENVIRONMENT=Production
+      - RabbitMq__Host=rabbitmq
+    depends_on:
+      - user-db
+      - rabbitmq
+
+  chat-service:
+    image: huyenthai01/chat-service:latest
+    ports:
+      - "5002:8080"
+    environment:
+      - Jwt__Key=${Jwt__Key}
+      - MongoDb__ConnectionString=mongodb://mongo-db:27017
+      - MongoDb__Database=ChatApp
+      - ASPNETCORE_ENVIRONMENT=Production
+    depends_on:
+      - mongo-db
+
+  media-service:
+    image: huyenthai01/media-service:latest
+    ports:
+      - "5003:8080"
+    environment:
+      - AzureBlob__ConnectionString=${AzureBlob__ConnectionString}
+      - AzureBlob__ContainerName=media
+      - Jwt__Key=${Jwt__Key}
+
+  frontend:
+    image: huyenthai01/messaging-frontend:latest
+    ports:
+      - "8081:80"
+    depends_on:
+      - auth-service
+      - user-service
+      - chat-service
+      - media-service
+
+  auth-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - SA_PASSWORD=${DB_PASSWORD}
+      - ACCEPT_EULA=Y
+    ports:
+      - "1433:1433"
+
+  user-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - SA_PASSWORD=${DB_PASSWORD}
+      - ACCEPT_EULA=Y
+    ports:
+      - "1434:1433"
+
+  mongo-db:
+    image: mongo
+    container_name: mongo-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RabbitMq__User}
+      - RABBITMQ_DEFAULT_PASS=${RabbitMq__Password}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+volumes:
+  mongo_data:
+  rabbitmq_data:
