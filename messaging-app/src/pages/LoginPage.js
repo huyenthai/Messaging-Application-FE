@@ -11,10 +11,10 @@ const LoginPage = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
-const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {a
   e.preventDefault();
   try {
-    const response = await authApi.post('api/Auth/login', { email, password });
+    const response = await authApi.post('api/auth/login', { email, password });
     const token = response.data.token;
     const payload = JSON.parse(atob(token.split('.')[1]));
     const user = {
