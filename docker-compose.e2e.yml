@@ -57,7 +57,7 @@ services:
       - Jwt__Key=${Jwt__Key}
 
   frontend:
-    image: huyenthai01/messaging-frontend:782ca39
+    image: huyenthai01/messaging-frontend:latest
     ports:
       - "8081:80"
     depends_on:
