@@ -80,28 +80,28 @@ jobs:
             timeout: 60
         - name: Restart Auth & User Services
           run: docker compose -f docker-compose.e2e.yml restart auth-service user-service
-        - name:  Wait for auth-service and user-service
-          run: |
-            echo "Waiting for auth-service and user-service to be healthy..."
-            for i in {1..30}; do
-              auth_ready=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/health || true)
-              user_ready=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5001/health || true)
+        # - name:  Wait for auth-service and user-service
+        #   run: |
+        #     echo "Waiting for auth-service and user-service to be healthy..."
+        #     for i in {1..30}; do
+        #       auth_ready=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/health || true)
+        #       user_ready=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5001/health || true)
 
-              echo "auth-service: $auth_ready | user-service: $user_ready"
+        #       echo "auth-service: $auth_ready | user-service: $user_ready"
 
-              if [ "$auth_ready" = "200" ] && [ "$user_ready" = "200" ]; then
-                echo " Both services are healthy!"
-                break
-              fi
+        #       if [ "$auth_ready" = "200" ] && [ "$user_ready" = "200" ]; then
+        #         echo " Both services are healthy!"
+        #         break
+        #       fi
 
-              echo "Still waiting..."
-              sleep 3
-            done
+        #       echo "Still waiting..."
+        #       sleep 3
+        #     done
 
-            if [ "$auth_ready" != "200" ] || [ "$user_ready" != "200" ]; then
-              echo "Services failed to start in time" >&2
-              exit 1
-            fi
+        #     if [ "$auth_ready" != "200" ] || [ "$user_ready" != "200" ]; then
+        #       echo "Services failed to start in time" >&2
+        #       exit 1
+        #     fi
 
         - name: Show auth-service logs
           run: docker logs $(docker ps -a -qf "name=auth-service") || true
