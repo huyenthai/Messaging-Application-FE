@@ -46,7 +46,6 @@ jobs:
         RabbitMq__Password: ${{ secrets.E2E_RABBITMQ_PASSWORD }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
-
       steps:
         - uses: actions/checkout@v3
         - name: Print ENV (for debug only!)
