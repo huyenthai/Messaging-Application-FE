@@ -13,6 +13,7 @@ services:
     depends_on:
       - auth-db
       - rabbitmq
+    entrypoint: ["/bin/sh", "-c", "./scripts/wait-for-it.sh rabbitmq:5672 -- dotnet AuthenticationService.dll"]
 
   user-service:
     image: huyenthai01/user-service:latest
@@ -26,6 +27,8 @@ services:
     depends_on:
       - user-db
       - rabbitmq
+    entrypoint: ["/bin/sh", "-c", "./scripts/wait-for-it.sh rabbitmq:5672 -- dotnet 'User Service.dll'"]
+
 
   chat-service:
     image: huyenthai01/chat-service:latest
