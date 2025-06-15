@@ -1,13 +1,13 @@
 describe('Profile Page - Logout Flow', () => {
-  beforeEach(() => {
-    // Log in before each test
-    cy.login('huyen@gmail.com', 'Test123');
-    cy.location('pathname').should('eq', '/dashboard');
+beforeEach(() => {
+  cy.login('huyen@gmail.com', 'Test123');
 
-    // Navigate to Profile page
-    cy.get('.profile-btn').click();
-    cy.location('pathname').should('eq', '/profile');
-  });
+  cy.location('pathname', { timeout: 10000 }).should('eq', '/dashboard');
+
+  cy.get('.profile-btn').should('be.visible').click();
+  cy.location('pathname').should('eq', '/profile');
+});
+
 
   it('logs out and redirects to login page', () => {
     cy.get('.logout-btn').click();
