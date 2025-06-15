@@ -48,6 +48,12 @@ jobs:
 
       steps:
         - uses: actions/checkout@v3
+        - name: Print ENV (for debug only!)
+          run: |
+            echo "Jwt__Key: $Jwt__Key"
+            echo "AuthDb: $ConnectionStrings__AuthDb"
+            echo "UserDb: $ConnectionStrings__UserDb"
+            echo "DB_PASSWORD: $DB_PASSWORD"
 
         - name: Start containers for Cypress tests
           run: docker compose -f docker-compose.e2e.yml up -d
