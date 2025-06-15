@@ -1,6 +1,7 @@
 version: "3.8"
 
 services:
+services:
   auth-service:
     image: huyenthai01/authentication-service:latest
     ports:
@@ -10,10 +11,12 @@ services:
       - ConnectionStrings__DefaultConnection=${ConnectionStrings__AuthDb}
       - ASPNETCORE_ENVIRONMENT=Production
       - RabbitMq__Host=rabbitmq
+    volumes:
+      - ./scripts/wait-for-it.sh:/wait-for-it.sh
+    entrypoint: ["/bin/sh", "-c", "chmod +x /wait-for-it.sh && /wait-for-it.sh rabbitmq:5672 -- dotnet AuthenticationService.dll"]
     depends_on:
       - auth-db
       - rabbitmq
-    entrypoint: ["/bin/sh", "-c", "./scripts/wait-for-it.sh rabbitmq:5672 -- dotnet AuthenticationService.dll"]
 
   user-service:
     image: huyenthai01/user-service:latest
@@ -24,10 +27,13 @@ services:
       - ConnectionStrings__DefaultConnection=${ConnectionStrings__UserDb}
       - ASPNETCORE_ENVIRONMENT=Production
       - RabbitMq__Host=rabbitmq
+    volumes:
+      - ./scripts/wait-for-it.sh:/wait-for-it.sh
+    entrypoint: ["/bin/sh", "-c", "chmod +x /wait-for-it.sh && /wait-for-it.sh rabbitmq:5672 -- dotnet 'User Service.dll'"]
     depends_on:
       - user-db
       - rabbitmq
-    entrypoint: ["/bin/sh", "-c", "./scripts/wait-for-it.sh rabbitmq:5672 -- dotnet 'User Service.dll'"]
+
 
 
   chat-service:
