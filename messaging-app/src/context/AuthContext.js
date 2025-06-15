@@ -10,8 +10,8 @@ const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     try {
-      const storedUser = sessionStorage.getItem('user');
-      const storedToken = sessionStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+      const storedToken = localStorage.getItem('token');
 
       if (storedUser && storedToken) {
         const parsedUser = JSON.parse(storedUser);
@@ -31,8 +31,8 @@ const AuthProvider = ({ children }) => {
   const login = (userData, jwt) => {
     setUser(userData);
     setToken(jwt);
-    sessionStorage.setItem('user', JSON.stringify(userData));
-    sessionStorage.setItem('token', jwt);
+    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('token', jwt);
     chatApi.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
     userApi.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
     mediaApi.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
@@ -41,7 +41,7 @@ const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     setToken(null);
-    sessionStorage.clear();
+    localStorage.clear();
     delete chatApi.defaults.headers.common['Authorization'];
   };
 
