@@ -64,19 +64,22 @@ jobs:
             exit 1
           fi
 
-      - name: Install dependencies for frontend
+      - name: Install dependencies and Axios
         run: |
           npm ci
           npm install axios
         working-directory: messaging-app
 
+      # Now it's safe to start React dev server
       - name: Start frontend (background)
         run: npm run start &
         working-directory: messaging-app
 
+      # Then wait for it
       - name: Wait for frontend to be ready
         run: npx wait-on http://localhost:8081
         working-directory: messaging-app
+
 
       - name: Restart Auth & User Services
         run: docker compose -f docker-compose.e2e.yml restart auth-service user-service
