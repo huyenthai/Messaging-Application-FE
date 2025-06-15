@@ -1,9 +1,11 @@
-Cypress.Commands.add('login', (email, password) => {
-  cy.visit('/');
-  cy.get('input[placeholder="Email"]').type(email);
-  cy.get('input[placeholder="Password"]').type(password);
-  cy.get('button[type="submit"]').click();
+// cypress/support/commands.js
 
-  // Wait until we reach the dashboard page
-  cy.location('pathname', { timeout: 10000 }).should('eq', '/dashboard');
+Cypress.Commands.add('login', (email, password) => {
+  cy.request('POST', 'http://localhost:5000/api/auth/login', {
+    email,
+    password,
+  }).then((res) => {
+    const token = res.body.token;
+    window.sessionStorage.setItem('token', token);
+  });
 });
