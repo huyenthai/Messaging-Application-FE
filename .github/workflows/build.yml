@@ -72,10 +72,14 @@ jobs:
             fi
 
         - name: Wait for frontend to be ready
-          uses: jakejarvis/wait-action@v0.1.1
+          uses: technote-space/wait-for-http-response@v1
           with:
             url: http://localhost:8081
-            timeout: 60
+            statusCode: 200
+            timeout: 60000  # 60 seconds
+            interval: 2000  # 2 seconds between checks
+
+
         - name: Restart Auth & User Services
           run: docker compose -f docker-compose.e2e.yml restart auth-service user-service
         - name: Wait for Auth Service
