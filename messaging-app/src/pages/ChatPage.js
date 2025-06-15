@@ -119,7 +119,7 @@ const ChatPage = () => {
   useEffect(() => {
     const loadMessages = async () => {
       try {
-        const historyRes = await chatApi.get(`chat/api/chat/history?receiverId=${userId}`);
+        const historyRes = await chatApi.get(`/chat/api/chat/history?receiverId=${userId}`);
         const msgs = historyRes.data;
 
         const senderIds = msgs.map(m => parseInt(m.senderId)).filter(id => !isNaN(id));
@@ -190,7 +190,7 @@ const ChatPage = () => {
     }
 
     // Send message to backend
-    await chatApi.post('chat/api/chat/send', payload);
+    await chatApi.post('/chat/api/chat/send', payload);
 
     // Immediately show the message locally
     const newMessage = {
