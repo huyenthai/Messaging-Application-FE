@@ -98,7 +98,6 @@ jobs:
               -H "Content-Type: application/json" \
               -d '{"email":"test@ci.com", "password":"Test123", "username":"Test"}' -v
 
-
         - name: Run Cypress tests
           uses: cypress-io/github-action@v5
           with:
