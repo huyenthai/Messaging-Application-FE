@@ -65,6 +65,18 @@ jobs:
               echo " RabbitMQ is not healthy in time." >&2
               exit 1
             fi
+            
+        - name: Wait for Auth Service
+          run: |
+            echo "⏳ Waiting for auth-service..."
+            for i in {1..20}; do
+              if curl -s http://localhost:5000/api/health | grep OK; then
+                echo " Auth Service is ready"
+                break
+              fi
+              sleep 5
+            done
+
 
         - name: Wait for frontend to be ready
           uses: jakejarvis/wait-action@v0.1.1

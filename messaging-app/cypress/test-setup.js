@@ -9,10 +9,11 @@ const users = [
 (async () => {
   for (const user of users) {
     try {
-      await axios.post('http://localhost:5000/api/auth/signup', user);
-      console.log(`Seeded user ${user.email}`);
+      const res = await axios.post('http://localhost:5000/api/auth/signup', user);
+      console.log(`Created user: ${user.email}`, res.status);
     } catch (err) {
-      console.error(`Failed to create user ${user.email}`, err.response?.data || err.message);
+      console.error(` Failed to create user ${user.email}`);
+      console.error(err.response?.data || err.message);
     }
   }
 })();
