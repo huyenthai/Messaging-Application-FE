@@ -73,6 +73,10 @@ jobs:
             url: http://localhost:8081
             timeout: 60
 
+        - name: List running containers
+          run: docker ps -a
+
+
         - name: Setup Node.js
           uses: actions/setup-node@v3
           with:
