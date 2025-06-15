@@ -38,7 +38,7 @@ const ChatPage = () => {
   useEffect(() => {
     const validateAccess = async () => {
     try {
-      const res = await chatApi.get('/api/chat/contacts');
+      const res = await chatApi.get('chat/api/chat/contacts');
       const allowedUserIds = res.data.map(id => String(id));
       if (allowedUserIds.includes(userId) || fromSearch) {
         setAllowed(true);
@@ -72,7 +72,7 @@ const ChatPage = () => {
         let updatedMsg = msg;
         if (msg.messageType === 'image' && msg.blobName) {
           try {
-            const res = await mediaApi.get(`/api/media/url/${msg.blobName}`);
+            const res = await mediaApi.get(`media/api/media/url/${msg.blobName}`);
             updatedMsg = { ...msg, imageUrl: res.data.sasUrl };
           } catch {
             updatedMsg = { ...msg, imageUrl: null };
@@ -80,7 +80,7 @@ const ChatPage = () => {
         }
        
     try {
-      const userRes = await userApi.post('/api/user/bulk', [msg.senderId]);
+      const userRes = await userApi.post('user/api/user/bulk', [msg.senderId]);
       const fetchedUser = userRes.data[0];
         setUserMap(prev => ({
         ...prev,
@@ -119,13 +119,13 @@ const ChatPage = () => {
   useEffect(() => {
     const loadMessages = async () => {
       try {
-        const historyRes = await chatApi.get(`/api/chat/history?receiverId=${userId}`);
+        const historyRes = await chatApi.get(`chat/api/chat/history?receiverId=${userId}`);
         const msgs = historyRes.data;
 
         const senderIds = msgs.map(m => parseInt(m.senderId)).filter(id => !isNaN(id));
         const uniqueIds = [...new Set([...senderIds, parseInt(userId)])];
 
-        const userRes = await userApi.post('/api/user/bulk', uniqueIds);
+        const userRes = await userApi.post('user/api/user/bulk', uniqueIds);
         const map = {};
         userRes.data.forEach(u => {
           map[u.id] = u.username;
@@ -133,7 +133,7 @@ const ChatPage = () => {
 
         const updatedMessages = await Promise.all(msgs.map(async (msg) => {
           if (msg.messageType === 'image' && msg.blobName) {
-            const res = await mediaApi.get(`/api/media/url/${msg.blobName}`);
+            const res = await mediaApi.get(`media/api/media/url/${msg.blobName}`);
             return { ...msg, imageUrl: res.data.sasUrl };
           }
           return msg;
@@ -178,19 +178,19 @@ const ChatPage = () => {
     if (image) {
       const formData = new FormData();
       formData.append('file', image);
-      const uploadRes = await mediaApi.post('/api/media/upload', formData, {
+      const uploadRes = await mediaApi.post('media/api/media/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       payload.blobName = uploadRes.data.blobName;
 
       // Generate image URL (SAS)
-      const urlRes = await mediaApi.get(`/api/media/url/${payload.blobName}`);
+      const urlRes = await mediaApi.get(`media/api/media/url/${payload.blobName}`);
       imageUrl = urlRes.data.sasUrl;
     }
 
     // Send message to backend
-    await chatApi.post('/api/chat/send', payload);
+    await chatApi.post('chat/api/chat/send', payload);
 
     // Immediately show the message locally
     const newMessage = {
