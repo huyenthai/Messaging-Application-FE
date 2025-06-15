@@ -36,7 +36,6 @@ jobs:
   
   e2e-tests:
       runs-on: ubuntu-latest
-
       env:
         Jwt__Key: ${{ secrets.JWT_KEY }}
         ConnectionStrings__AuthDb: ${{ secrets.E2E_AUTH_DB_CONNECTION }}
