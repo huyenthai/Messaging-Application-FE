@@ -72,7 +72,7 @@ jobs:
             fi
 
         - name: Wait for frontend to be ready
-          uses: technote-space/wait-for-http-response@v1
+          uses: cycjimmy/wait-on-action@v1
           with:
             url: http://localhost:8081
             statusCode: 200
