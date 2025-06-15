@@ -38,13 +38,14 @@ jobs:
       runs-on: ubuntu-latest
 
       env:
-        Jwt__Key: ${{ secrets.E2E_JWT_KEY }}
+        Jwt__Key: ${{ secrets.JWT_KEY }}
         ConnectionStrings__AuthDb: ${{ secrets.E2E_AUTH_DB_CONNECTION }}
         ConnectionStrings__UserDb: ${{ secrets.E2E_USER_DB_CONNECTION }}
         AzureBlob__ConnectionString: ${{ secrets.E2E_AZURE_BLOB_CONNECTION }}
         RabbitMq__User: ${{ secrets.E2E_RABBITMQ_USER }}
         RabbitMq__Password: ${{ secrets.E2E_RABBITMQ_PASSWORD }}
-        DB_PASSWORD: ${{ secrets.E2E_DB_PASSWORD }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+
 
       steps:
         - uses: actions/checkout@v3
