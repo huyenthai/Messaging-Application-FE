@@ -1,7 +1,6 @@
 version: "3.8"
 
 services:
-services:
   auth-service:
     image: huyenthai01/authentication-service:latest
     ports:
