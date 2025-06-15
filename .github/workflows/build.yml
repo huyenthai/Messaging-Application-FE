@@ -72,13 +72,10 @@ jobs:
             fi
 
         - name: Wait for frontend to be ready
-          uses: cycjimmy/wait-on-action@v1
+          uses: jakejarvis/wait-action@v0.1.1
           with:
             url: http://localhost:8081
-            statusCode: 200
-            timeout: 60000  # 60 seconds
-            interval: 2000  # 2 seconds between checks
-
+            timeout: 60000  
 
         - name: Restart Auth & User Services
           run: docker compose -f docker-compose.e2e.yml restart auth-service user-service
