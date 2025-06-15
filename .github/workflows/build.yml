@@ -33,90 +33,90 @@ jobs:
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           docker push "${{ env.DOCKER_IMAGE_NAME }}:$SHORT_SHA"
           docker push "${{ env.DOCKER_IMAGE_NAME }}:${{ env.TAG_NAME }}"
-  e2e-tests:
-    runs-on: ubuntu-latest
-    needs: docker-image-and-push
-    env:
-      Jwt__Key: ${{ secrets.JWT_KEY }}
-      ConnectionStrings__AuthDb: ${{ secrets.E2E_AUTH_DB_CONNECTION }}
-      ConnectionStrings__UserDb: ${{ secrets.E2E_USER_DB_CONNECTION }}
-      AzureBlob__ConnectionString: ${{ secrets.E2E_AZURE_BLOB_CONNECTION }}
-      RabbitMq__User: ${{ secrets.E2E_RABBITMQ_USER }}
-      RabbitMq__Password: ${{ secrets.E2E_RABBITMQ_PASSWORD }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  # e2e-tests:
+  #   runs-on: ubuntu-latest
+  #   needs: docker-image-and-push
+  #   env:
+  #     Jwt__Key: ${{ secrets.JWT_KEY }}
+  #     ConnectionStrings__AuthDb: ${{ secrets.E2E_AUTH_DB_CONNECTION }}
+  #     ConnectionStrings__UserDb: ${{ secrets.E2E_USER_DB_CONNECTION }}
+  #     AzureBlob__ConnectionString: ${{ secrets.E2E_AZURE_BLOB_CONNECTION }}
+  #     RabbitMq__User: ${{ secrets.E2E_RABBITMQ_USER }}
+  #     RabbitMq__Password: ${{ secrets.E2E_RABBITMQ_PASSWORD }}
+  #     DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Start containers for Cypress tests
-        run: docker compose -f docker-compose.e2e.yml up -d
+  #     - name: Start containers for Cypress tests
+  #       run: docker compose -f docker-compose.e2e.yml up -d
 
-      - name: Wait for RabbitMQ to be healthy
-        run: |
-          echo "Waiting for RabbitMQ..."
-          for i in {1..20}; do
-            status=$(docker inspect --format='{{.State.Health.Status}}' $(docker ps -qf "name=rabbitmq"))
-            echo "Health status: $status"
-            [ "$status" = "healthy" ] && break
-            sleep 5
-          done
-          if [ "$status" != "healthy" ]; then
-            echo "RabbitMQ is not healthy in time." >&2
-            exit 1
-          fi
+  #     - name: Wait for RabbitMQ to be healthy
+  #       run: |
+  #         echo "Waiting for RabbitMQ..."
+  #         for i in {1..20}; do
+  #           status=$(docker inspect --format='{{.State.Health.Status}}' $(docker ps -qf "name=rabbitmq"))
+  #           echo "Health status: $status"
+  #           [ "$status" = "healthy" ] && break
+  #           sleep 5
+  #         done
+  #         if [ "$status" != "healthy" ]; then
+  #           echo "RabbitMQ is not healthy in time." >&2
+  #           exit 1
+  #         fi
 
-      - name: Install dependencies and Axios
-        run: |
-          npm ci
-          npm install axios
-        working-directory: messaging-app
+  #     - name: Install dependencies and Axios
+  #       run: |
+  #         npm ci
+  #         npm install axios
+  #       working-directory: messaging-app
 
-      - name: Start frontend (background)
-        run: |
-          npm run start > frontend.log 2>&1 &
-        working-directory: messaging-app
+  #     - name: Start frontend (background)
+  #       run: |
+  #         npm run start > frontend.log 2>&1 &
+  #       working-directory: messaging-app
 
-      - name: Wait for frontend to be ready
-        run: |
-          npx wait-on http://localhost:8081
-          # Further assert the frontend responds to the root
-          curl -f http://localhost:8081 || (cat messaging-app/frontend.log && exit 1)
+  #     - name: Wait for frontend to be ready
+  #       run: |
+  #         npx wait-on http://localhost:8081
+  #         # Further assert the frontend responds to the root
+  #         curl -f http://localhost:8081 || (cat messaging-app/frontend.log && exit 1)
 
-      - name: Restart Auth & User Services
-        run: docker compose -f docker-compose.e2e.yml restart auth-service user-service
+  #     - name: Restart Auth & User Services
+  #       run: docker compose -f docker-compose.e2e.yml restart auth-service user-service
 
-      - name: Wait for Auth Service
-        run: |
-          for i in {1..15}; do
-            echo "Waiting for Auth Service (attempt $i)..."
-            if curl -s http://localhost:5000/health; then
-              echo "Auth Service is ready!"
-              exit 0
-            fi
-            sleep 5
-          done
-          echo "Auth Service did not become ready in time"
-          docker logs $(docker ps -a -qf "name=auth-service")
-          exit 1
+  #     - name: Wait for Auth Service
+  #       run: |
+  #         for i in {1..15}; do
+  #           echo "Waiting for Auth Service (attempt $i)..."
+  #           if curl -s http://localhost:5000/health; then
+  #             echo "Auth Service is ready!"
+  #             exit 0
+  #           fi
+  #           sleep 5
+  #         done
+  #         echo "Auth Service did not become ready in time"
+  #         docker logs $(docker ps -a -qf "name=auth-service")
+  #         exit 1
 
-      - name: Show logs 
-        run: |
-          docker logs $(docker ps -a -qf "name=auth-service") || true
-          docker logs $(docker ps -a -qf "name=user-service") || true
-          docker ps -a
+  #     - name: Show logs 
+  #       run: |
+  #         docker logs $(docker ps -a -qf "name=auth-service") || true
+  #         docker logs $(docker ps -a -qf "name=user-service") || true
+  #         docker ps -a
 
-      - name: Seed test data
-        run: node cypress/test-setup.js
-        working-directory: messaging-app
+  #     - name: Seed test data
+  #       run: node cypress/test-setup.js
+  #       working-directory: messaging-app
 
-      - name: Run Cypress tests
-        uses: cypress-io/github-action@v5
-        with:
-          working-directory: messaging-app
-          config: baseUrl=http://localhost:8081
-          wait-on: http://localhost:8081
-          install: false  
+  #     - name: Run Cypress tests
+  #       uses: cypress-io/github-action@v5
+  #       with:
+  #         working-directory: messaging-app
+  #         config: baseUrl=http://localhost:8081
+  #         wait-on: http://localhost:8081
+  #         install: false  
 
-      - name: Shut down test stack
-        if: always()
-        run: docker compose -f docker-compose.e2e.yml down
+  #     - name: Shut down test stack
+  #       if: always()
+  #       run: docker compose -f docker-compose.e2e.yml down

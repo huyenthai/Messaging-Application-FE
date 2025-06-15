@@ -6,8 +6,10 @@ Cypress.Commands.add('login', (email, password) => {
   cy.get('button[type="submit"]').should('not.be.disabled').click();
 
   cy.location('pathname', { timeout: 10000 }).should('eq', '/dashboard');
-});
-Cypress.on('uncaught:exception', (err) => {
-  console.error('Uncaught exception:', err);
-  return false; 
+
+  //  Debug: Log the current localStorage
+  cy.window().then((win) => {
+    console.log('localStorage user:', win.localStorage.getItem('user'));
+    console.log('localStorage token:', win.localStorage.getItem('token'));
+  });
 });

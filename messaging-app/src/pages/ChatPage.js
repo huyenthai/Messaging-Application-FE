@@ -38,7 +38,7 @@ const ChatPage = () => {
   useEffect(() => {
     const validateAccess = async () => {
     try {
-      const res = await chatApi.get('/api/chat/contacts');
+      const res = await chatApi.get('chat/api/chat/contacts');
       const allowedUserIds = res.data.map(id => String(id));
       if (allowedUserIds.includes(userId) || fromSearch) {
         setAllowed(true);
