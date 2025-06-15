@@ -67,6 +67,11 @@ jobs:
           run: |
             cd messaging-app
             npm ci
+        - name: Install Axios
+          run: npm install axios
+
+        - name: Seed test users
+          run: node cypress/test-setup.js
 
         - name: Run Cypress tests
           uses: cypress-io/github-action@v5
