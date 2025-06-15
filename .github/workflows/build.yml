@@ -75,11 +75,11 @@ jobs:
           npm run start > frontend.log 2>&1 &
         working-directory: messaging-app
 
-      # Then wait for it
       - name: Wait for frontend to be ready
-        run: npx wait-on http://localhost:8081
-        working-directory: messaging-app
-
+        run: |
+          npx wait-on http://localhost:8081
+          # Further assert the frontend responds to the root
+          curl -f http://localhost:8081 || (cat messaging-app/frontend.log && exit 1)
 
       - name: Restart Auth & User Services
         run: docker compose -f docker-compose.e2e.yml restart auth-service user-service
