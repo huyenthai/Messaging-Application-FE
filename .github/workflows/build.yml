@@ -70,9 +70,9 @@ jobs:
           npm install axios
         working-directory: messaging-app
 
-      # Now it's safe to start React dev server
       - name: Start frontend (background)
-        run: npm run start &
+        run: |
+          npm run start > frontend.log 2>&1 &
         working-directory: messaging-app
 
       # Then wait for it
@@ -115,7 +115,6 @@ jobs:
           config: baseUrl=http://localhost:8081
           wait-on: http://localhost:8081
           install: false  
-
 
       - name: Shut down test stack
         if: always()
