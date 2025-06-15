@@ -51,6 +51,20 @@ jobs:
 
         - name: Start containers for Cypress tests
           run: docker compose -f docker-compose.e2e.yml up -d
+          
+        - name: Wait for RabbitMQ to be healthy
+          run: |
+            echo "Waiting for RabbitMQ..."
+            for i in {1..20}; do
+              status=$(docker inspect --format='{{.State.Health.Status}}' $(docker ps -qf "name=rabbitmq"))
+              echo "Health status: $status"
+              [ "$status" = "healthy" ] && break
+              sleep 5
+            done
+            if [ "$status" != "healthy" ]; then
+              echo " RabbitMQ is not healthy in time." >&2
+              exit 1
+            fi
 
         - name: Wait for frontend to be ready
           uses: jakejarvis/wait-action@v0.1.1
@@ -70,8 +84,9 @@ jobs:
         - name: Install Axios
           run: npm install axios
 
-        - name: Seed test users
-          run: node cypress/test-setup.js
+        - name: Seed test data
+          run: node messaging-app/cypress/test-setup.js
+
 
         - name: Run Cypress tests
           uses: cypress-io/github-action@v5

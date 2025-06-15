@@ -92,6 +92,11 @@ services:
       - RABBITMQ_DEFAULT_PASS=${RabbitMq__Password}
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
 volumes:
   mongo_data:
