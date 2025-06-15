@@ -80,7 +80,7 @@ const ChatPage = () => {
         }
        
     try {
-      const userRes = await userApi.post('user/api/user/bulk', [msg.senderId]);
+      const userRes = await userApi.post('/api/user/bulk', [msg.senderId]);
       const fetchedUser = userRes.data[0];
         setUserMap(prev => ({
         ...prev,
@@ -125,7 +125,7 @@ const ChatPage = () => {
         const senderIds = msgs.map(m => parseInt(m.senderId)).filter(id => !isNaN(id));
         const uniqueIds = [...new Set([...senderIds, parseInt(userId)])];
 
-        const userRes = await userApi.post('user/api/user/bulk', uniqueIds);
+        const userRes = await userApi.post('/api/user/bulk', uniqueIds);
         const map = {};
         userRes.data.forEach(u => {
           map[u.id] = u.username;
