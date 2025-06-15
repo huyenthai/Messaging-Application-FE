@@ -70,13 +70,16 @@ jobs:
               echo " RabbitMQ is not healthy in time." >&2
               exit 1
             fi
+        - name: Install wait-on
+          run: npm install -g wait-on
 
-        - name: Wait for app to be ready
-          uses: cycjimmy/wait-on-action@v1
-          with:
-            resource: http://localhost:8081
-            timeout: 60
-            interval: 2000
+        - name: Start frontend
+          run: npm run start &
+
+        - name: Wait for frontend container
+          run: wait-on http://localhost:8081 --timeout 60000
+
+
 
         - name: Restart Auth & User Services
           run: docker compose -f docker-compose.e2e.yml restart auth-service user-service
