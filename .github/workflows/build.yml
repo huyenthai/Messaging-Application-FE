@@ -114,6 +114,8 @@ jobs:
           working-directory: messaging-app
           config: baseUrl=http://localhost:8081
           wait-on: http://localhost:8081
+          install: false  
+
 
       - name: Shut down test stack
         if: always()
