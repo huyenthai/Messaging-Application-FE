@@ -78,8 +78,7 @@ jobs:
           with:
             url: http://localhost:8081
             timeout: 60
-        - name: Restart Auth & User Services
-          run: docker compose -f docker-compose.e2e.yml restart auth-service user-service
+
 
         - name: Show auth-service logs
           run: docker logs $(docker ps -a -qf "name=auth-service") || true

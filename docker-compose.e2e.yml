@@ -7,7 +7,7 @@ services:
       - "5000:8080"
     environment:
       - Jwt__Key=${Jwt__Key}
-      - ConnectionStrings__DefaultConnection=${ConnectionStrings__AuthDb}
+      - ConnectionStrings__AuthDb=${ConnectionStrings__AuthDb}
       - ASPNETCORE_ENVIRONMENT=Production
       - RabbitMq__Host=rabbitmq
     volumes:
@@ -23,7 +23,7 @@ services:
       - "5001:8080"
     environment:
       - Jwt__Key=${Jwt__Key}
-      - ConnectionStrings__DefaultConnection=${ConnectionStrings__UserDb}
+      - ConnectionStrings__UserDb=${ConnectionStrings__UserDb}
       - ASPNETCORE_ENVIRONMENT=Production
       - RabbitMq__Host=rabbitmq
     volumes:
