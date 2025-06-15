@@ -65,17 +65,6 @@ jobs:
               echo " RabbitMQ is not healthy in time." >&2
               exit 1
             fi
-            
-        - name: Wait for Auth Service
-          run: |
-            echo "⏳ Waiting for auth-service..."
-            for i in {1..20}; do
-              if curl -s http://localhost:5000/api/health | grep OK; then
-                echo " Auth Service is ready"
-                break
-              fi
-              sleep 5
-            done
 
 
         - name: Wait for frontend to be ready
@@ -98,6 +87,12 @@ jobs:
 
         - name: Seed test data
           run: node messaging-app/cypress/test-setup.js
+
+        - name: Curl test for signup
+          run: |
+            curl -X POST http://localhost:5000/api/auth/signup \
+              -H "Content-Type: application/json" \
+              -d '{"email":"test@ci.com", "password":"Test123", "username":"Test"}' -v
 
 
         - name: Run Cypress tests
