@@ -24,7 +24,8 @@ const DashboardPage = () => {
 useEffect(() => {
   const fetchContacts = async () => {
     try {
-      const contactIdRes = await chatApi.get('chat/api/chat/contacts');
+      //const contactIdRes = await chatApi.get('chat/api/chat/contacts');
+      const contactIdRes = await chatApi.get('api/chat/contacts');
       const contactIds = contactIdRes.data;
 
       // Convert string IDs to integers
@@ -33,7 +34,7 @@ useEffect(() => {
         .filter(id => !isNaN(id)); 
 
       if (intIds.length > 0) {
-        const userRes = await userApi.post('user/api/user/bulk', intIds);
+        const userRes = await userApi.post('api/user/bulk', intIds);
         setContacts(userRes.data);
       }
     } catch (err) {
@@ -57,7 +58,7 @@ useEffect(() => {
 
         if (!alreadyInContacts) {
           try {
-            const userRes = await userApi.post('user/api/user/bulk', [senderId]);
+            const userRes = await userApi.post('api/user/bulk', [senderId]);
             const newUser = userRes.data[0];
 
             setContacts(prev => [...prev, newUser]);
@@ -79,7 +80,7 @@ useEffect(() => {
 
   const handleSearch = async () => {
     try {
-      const res = await userApi.get(`user/api/user/search?query=${searchQuery}`);
+      const res = await userApi.get(`api/user/search?query=${searchQuery}`);
       setSearchResults(res.data);
     } catch (err) {
       console.error('Search failed');

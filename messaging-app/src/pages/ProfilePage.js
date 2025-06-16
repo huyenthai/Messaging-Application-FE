@@ -19,7 +19,9 @@ const handleDeleteAccount = async () => {
   if (!confirmed) return;
 
   try {
-    const response = await userApi.delete('user/api/user/delete-account');
+    //const response = await userApi.delete('user/api/user/delete-account');
+     const response = await userApi.delete('api/user/delete-account');
+    
 
     if (response.status === 204) {
       alert("Your account has been deleted.");
